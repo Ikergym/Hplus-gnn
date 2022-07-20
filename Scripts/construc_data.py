@@ -10,7 +10,8 @@ from pathlib import Path
 import json
 
 # Import custom libraries
-sys.path.append(str(Path().absolute()))  # Add source directory to PYTHONPATH
+SRC_PATH = str(Path(__file__).parents[1].absolute())
+sys.path.append(SRC_PATH)  # Add source directory to PYTHONPATH
 import gnn_tools.data as gnn_data
 
 
@@ -19,7 +20,7 @@ global_features= ['mjb_leading_bjet', 'mjb_maxdr', 'mjb_mindr',
                   'jets_n', 'bjets_n'
                  ]
 
-# Define scaling of global features: scaled feature[i] = feature[i] / scaling[i]
+# Define scaling of global features:scaled feature[i] = feature[i] / scaling[i]
 global_scale = np.asarray([1,1,1,1,1])
 
 # Define scaling of node variables

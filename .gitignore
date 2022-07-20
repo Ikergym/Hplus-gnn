@@ -1,2 +1,5 @@
 ATLASMCDATA/*
 TrainingExample.ipynb
+Tests/*
+.python-version
+*__pycache__
