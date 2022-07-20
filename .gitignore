@@ -1,5 +1,7 @@
 ATLASMCDATA/*
+Geometric_Data*
 TrainingExample.ipynb
-Tests/*
+tests/*
+logs/*
 .python-version
 *__pycache__

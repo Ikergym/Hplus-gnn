@@ -1,17 +1,14 @@
 # Import third-party libraries
-import pickle5
 import pickle
 import sys
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import os
 from pathlib import Path
 import json
 
 # Import custom libraries
-SRC_PATH = str(Path(__file__).parents[1].absolute())
-sys.path.append(SRC_PATH)  # Add source directory to PYTHONPATH
+SRC_PATH = Path(__file__).parents[1].absolute()
+sys.path.append(str(SRC_PATH))  # Add source directory to PYTHONPATH
 import gnn_tools.data as gnn_data
 
 
@@ -27,7 +24,7 @@ global_scale = np.asarray([1,1,1,1,1])
 node_scale=np.asarray([1,1,1,1,1,1,1])
 
 # Define path for data fies 
-parent_dir = Path('.').resolve().parents[0] / 'ATLASMCDATA'
+parent_dir = SRC_PATH / 'ATLASMCDATA'
 
 # Define data files to use
 files = ['Hpluscb_60.csv', 'Hpluscb_110.csv', 'Hpluscb_160.csv',
@@ -37,12 +34,22 @@ files = ['Hpluscb_60.csv', 'Hpluscb_110.csv', 'Hpluscb_160.csv',
 is_signals = [1, 1, 1, 0, 0, 0, 0]  # Define if files are signal or background
 
 # Read number of rows
-with open('nrows.json') as json_file:
+with open(SRC_PATH / 'utils/nrows.json') as json_file:
     sizes_dict = json.load(json_file)
 
 file_indices_dict = {}
 
-with open('log.log', 'w') as log:
+# Define output data Paths
+PATH_TRAIN = SRC_PATH / 'Geometric_Data_Even'  # Temporary X to avoid unintentional Overitting
+PATH_TEST = SRC_PATH / 'Geometric_Data_Odd'  #Temporary X to avoid unintentional Overitting
+PATH_TRAIN.mkdir(exist_ok=True)
+PATH_TEST.mkdir(exist_ok=True)
+
+# Define log path
+PATH_LOG = SRC_PATH / 'logs'
+PATH_LOG.mkdir(exist_ok=True)
+
+with open(PATH_LOG / 'data_construction.log', 'w') as log:
 
     starting_index = 0
 
@@ -69,15 +76,15 @@ with open('log.log', 'w') as log:
 
             # Create and save training graphs with even events
             graphs, booking = gnn_data.CreateTorchGraphs(data_df.query('eventNumber%2==0'), global_features, global_scale, node_scale)
-            with open(f'Geometric_Data_Even/graphs_{global_index}.pkl', 'wb') as f:
+            with open(PATH_TRAIN / f'graphs_{global_index}.pkl', 'wb') as f:
                 pickle.dump(graphs, f)
-            booking.to_pickle(f'Geometric_Data_Even/booking_{global_index}.pkl')
+            booking.to_pickle(PATH_TRAIN /f'booking_{global_index}.pkl')
 
             # Create and save testing graphs with odd events
             graphs, booking = gnn_data.CreateTorchGraphs(data_df.query('eventNumber%2==1'), global_features, global_scale, node_scale)
-            with open(f'Geometric_Data_Odd/graphs_{global_index}.pkl', 'wb') as f:
+            with open(PATH_TEST / f'graphs_{global_index}.pkl', 'wb') as f:
                 pickle.dump(graphs, f)
-            booking.to_pickle(f'Geometric_Data_Odd/booking_{global_index}.pkl')
+            booking.to_pickle(PATH_TEST / f'booking_{global_index}.pkl')
 
         # Recalculate and store indices for current file 
         ending_index = global_index
@@ -86,5 +93,5 @@ with open('log.log', 'w') as log:
 
 
 # Save indices dictionary as json
-with open('geometric_indices.json', 'w') as f_ind:
+with open(SRC_PATH / 'utils/geometric_indices.json', 'w') as f_ind:
     json.dump(file_indices_dict, f_ind)
