@@ -416,5 +416,5 @@ class Loader():
       for idx in chunk:
         print(f'Opening file {self.path}/graphs_{idx}.pkl:')
         with open(f'{self.path}/graphs_{idx}.pkl', 'rb') as f:
-          data_list = data_list + pickle.load(f)[:10]
+          data_list = data_list + pickle.load(f)#[:10]
       return Batch.from_data_list(data_list)
