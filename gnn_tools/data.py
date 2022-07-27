@@ -2,13 +2,14 @@ from __future__ import print_function
 from ast import For
 import torch_geometric
 import torch_geometric.utils as utils
-from torch_geometric.data import Data
+from torch_geometric.data import Data, Batch
 import time
 import networkx as nx
 import matplotlib.pyplot as plt
 import pickle5
 import numpy as np
 import pandas as pd
+from math import ceil
 from itertools import combinations, permutations
 import torch
 import matplotlib.cm as cm
@@ -389,21 +390,31 @@ class customDataset(Dataset):
 
 class Loader():
 
-  def __init__(self, path, indices):
+  def __init__(self, path, indices, chunk_length=4):
     self.path = path
     self.indices = indices
+    np.random.shuffle(self.indices)
+
     self.index = 0
+    self.chunk_length = chunk_length
+    self.nchunks = ceil(len(self.indices) / self.chunk_length)
+    self.chunks = np.array_split(self.indices, self.nchunks)
 
   def __iter__(self):
     return self
 
   def __next__(self):
-    if self.index >= len(self.indices):
+    if self.index >= len(self.chunks):
       raise StopIteration
     else:
       index = self.index
+      chunk = self.chunks[index]
       self.index += 1
-      print(f'Opening fie {self.path}/graphs_{self.indices[index]}.pkl:')
-      with open(f'{self.path}/graphs_{self.indices[index]}.pkl', 'rb') as f:
-        data_set = pickle.load(f)
-        return data_set
+
+      data_list = []
+
+      for idx in chunk:
+        print(f'Opening file {self.path}/graphs_{idx}.pkl:')
+        with open(f'{self.path}/graphs_{idx}.pkl', 'rb') as f:
+          data_list = data_list + pickle.load(f)[:10]
+      return Batch.from_data_list(data_list)

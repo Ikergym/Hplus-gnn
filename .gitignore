@@ -1,5 +1,6 @@
 ATLASMCDATA/*
 Geometric_Data*
+bestModel.pt
 TrainingExample.ipynb
 tests/*
 logs/*

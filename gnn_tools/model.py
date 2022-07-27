@@ -25,8 +25,6 @@ class EdgeModel(torch.nn.Module):
         # edge_attr: [E, F_e]
         # u: [B, F_u], where B is the number of graphs.
         # batch: [E] with max entry B - 1.
-        E = src.shape[0]
-        batch = torch.tensor([0 for i in range(E)])
         out = torch.cat([src, dest, edge_attr, u[batch]], 1).float()
         return self.edge_mlp(out)
 
@@ -65,7 +63,6 @@ class NodeModel(torch.nn.Module):
         out = self.node_mlp_1(out) # message
         agg_mean = scatter_mean(out, col, dim=0, dim_size=x.size(0))
         agg_max = scatter_max(out, col, dim=0, dim_size=x.size(0))[0]
-        batch = torch.tensor([0 for i in range(x.shape[0])])
         out = torch.cat([x, agg_mean, agg_max, u[batch]], dim=1).float()
         return self.node_mlp_2(out) # update node with message
 
@@ -87,7 +84,6 @@ class GlobalModel(torch.nn.Module):
         # edge_attr: [E, F_e]
         # u: [B, F_u]
         # batch: [N] with max entry B - 1.
-        batch = torch.tensor([0 for i in range(x.shape[0])])
         out = torch.cat([u, scatter_mean(x, batch, dim=0), scatter_max(x, batch, dim=0)[0]], dim=1).float()
         return self.global_mlp(out)
 
@@ -124,7 +120,6 @@ class GeneralMPGNN(torch.nn.Module):
       x_new, edge_attr_new, u_new = self.mp_layer1(x, edge_index, edge_attr, u_new, batch)
       x_new, edge_attr_new, u_new = self.mp_layer2(x_new, edge_index, edge_attr_new, u_new, batch)
       x_new, edge_attr_new, u_new = self.mp_layer3(x_new, edge_index, edge_attr_new, u_new, batch)
-      batch = torch.tensor([0 for i in range(x_new.shape[0])])
       x_mean_pool = global_mean_pool(x_new, batch)
       x_max_pool = global_max_pool(x_new, batch)
       out = torch.cat([u_new, x_mean_pool, x_max_pool], dim=1).float()

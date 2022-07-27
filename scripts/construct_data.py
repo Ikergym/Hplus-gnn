@@ -1,4 +1,3 @@
-# Import third-party libraries
 import pickle
 import sys
 import pandas as pd
@@ -40,8 +39,8 @@ with open(SRC_PATH / 'utils/nrows.json') as json_file:
 file_indices_dict = {}
 
 # Define output data Paths
-PATH_TRAIN = SRC_PATH / 'Geometric_Data_Even'  # Temporary X to avoid unintentional Overitting
-PATH_TEST = SRC_PATH / 'Geometric_Data_Odd'  #Temporary X to avoid unintentional Overitting
+PATH_TRAIN = SRC_PATH / 'XGeometric_Data_Even'  # Temporary X to avoid unintentional Overitting
+PATH_TEST = SRC_PATH / 'XGeometric_Data_Odd'  #Temporary X to avoid unintentional Overitting
 PATH_TRAIN.mkdir(exist_ok=True)
 PATH_TEST.mkdir(exist_ok=True)
 

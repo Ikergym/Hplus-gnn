@@ -3,36 +3,38 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
+
 def train(model, loader, cuda, criterion, optimizer):
     model.train()
     running_loss=0
-    for data_set in loader: # Iterate in batches over the training dataset.
-        data_set = data_set[:9]
-        for data in data_set:
-            # zero the parameter gradients
-            data.to(cuda)
-            optimizer.zero_grad()
-            out = model(data.x, data.edge_index, data.edge_attr, data.u, data.pseudo_mH, data.batch)  # Perform a single forward pass.
-            loss = criterion(out, data.y.view(-1,1))  # Compute the loss per entry.
-            loss = torch.div(torch.dot(loss.flatten(), data.w.flatten()), 100*len(data.w.flatten()))
-            loss.backward()  # Derive gradients.
-            optimizer.step()  # Update parameters based on gradients.
-            running_loss += loss.item()
-            print(out.item(), data.y.item(), loss.item())
+    for data in loader: # Iterate in batches over the training dataset.
+        #for data in data_set:
+        # zero the parameter gradients
+        data.to(cuda)
+        optimizer.zero_grad()
+        out = model(data.x, data.edge_index, data.edge_attr, data.u, data.pseudo_mH, data.batch)  # Perform a single forward pass.
+        loss = criterion(out, data.y.view(-1,1))  # Compute the loss per entry.
+        print(f'Out: {out}, loss: {loss}')
+        loss = torch.div(torch.dot(loss.flatten(), data.w.flatten()), 100*len(data.w.flatten()))
+        loss.backward()  # Derive gradients.
+        optimizer.step()  # Update parameters based on gradients.
+        running_loss += loss.item()
+    print(f'running_loss = {running_loss}')
     return running_loss
+
 
 def get_metrics(model, loader, cuda, criterion):
      model.eval()
      running_loss=0
-     for data_set in loader:
-        data_set = data_set[:9]
-        for data in data_set:  # Iterate in batches over the training/test dataset.
-            data.to(cuda)
-            # zero the parameter gradients
-            out = model(data.x, data.edge_index, data.edge_attr, data.u, data.pseudo_mH, data.batch)  # Perform a single forward pass.
-            loss = criterion(out, data.y.view(-1,1))  # Compute the loss per entry.
-            loss = torch.div(torch.dot(loss.flatten(), data.w.flatten()), 100*len(data.w.flatten()))
-            running_loss += loss.item()
+     for data in loader:
+        #for data in data_set:  # Iterate in batches over the training/test dataset.
+        data.to(cuda)
+        # zero the parameter gradients
+        out = model(data.x, data.edge_index, data.edge_attr, data.u, data.pseudo_mH, data.batch)  # Perform a single forward pass.
+        loss = criterion(out, data.y.view(-1,1))  # Compute the loss per entry.
+        loss = torch.div(torch.dot(loss.flatten(), data.w.flatten()), 100*len(data.w.flatten()))
+        running_loss += loss.item()
+     print(f'running_loss = {running_loss}')
      return running_loss
 
 

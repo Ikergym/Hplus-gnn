@@ -31,7 +31,7 @@ for file in files:
 
 # Generate loaders for train and test sets
 path_train = SRC_PATH / 'Geometric_Data_Even'
-path_test = SRC_PATH / 'examples/Geometric_Data_Odd'
+path_test = SRC_PATH / 'Geometric_Data_Odd'
 loader_train = gnn_data.Loader(path_train, indices)
 loader_test = gnn_data.Loader(path_test, indices)
 
